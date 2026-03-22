@@ -6,8 +6,8 @@ export const SOCIAL_LINKS = {
   buyMeACoffee: "https://www.buymeacoffee.com/rohitks7",
   tools: "https://guardclaw.dev/tools",
   tool_github: "https://github.com/RohitKS7",
-  tool_calculator: "https://calculator.guardclaw.dev",
-  tool_modelpicker: "https://picker.guardclaw.dev",
+  tool_calculator: "https://guardclaw.dev/calculator",
+  tool_modelpicker: "https://guardclaw.dev/picker",
 };
 
 export const FUTURE_TOOLS = [

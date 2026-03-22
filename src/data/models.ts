@@ -58,6 +58,22 @@ const MODEL_DEFINITIONS: Record<string, ModelDefinition> = {
     provider: "Ollama",
     modelId: "ollama/llama3.3",
   },
+  "openrouter/z-ai/glm-4.5-air": {
+    displayName: "GLM-4.5 Air",
+    provider: "OpenRouter",
+    modelId: "openrouter/z-ai/glm-4.5-air",
+    openRouter: true,
+  },
+  "openai/gpt-4.1": {
+    displayName: "GPT-4.1",
+    provider: "OpenAI",
+    modelId: "openai/gpt-4.1",
+  },
+  "openai/gpt-5.2": {
+    displayName: "GPT-5.2",
+    provider: "OpenAI",
+    modelId: "openai/gpt-5.2",
+  },
 };
 
 export const buildModelEntry = (

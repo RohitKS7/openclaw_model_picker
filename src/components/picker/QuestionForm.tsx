@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { ComparisonNote } from "@/components/picker/ComparisonNote";
 import { ConfigSnippet } from "@/components/picker/ConfigSnippet";
 import { CostEstimate } from "@/components/picker/CostEstimate";
 import { EcosystemCTA } from "@/components/picker/EcosystemCTA";
@@ -28,9 +29,11 @@ const useCaseOptions: Array<{ value: UseCase; label: string; detail: string }> =
 
 const budgetOptions: Array<{ value: Budget; label: string }> = [
   { value: "free", label: "Free" },
-  { value: "under20", label: "Under $20" },
-  { value: "20to50", label: "$20-$50" },
-  { value: "50plus", label: "$50+" },
+  { value: "under10", label: "Under $10" },
+  { value: "10to15", label: "$10-$15" },
+  { value: "15to20", label: "$15-$20" },
+  { value: "20to40", label: "$20-$40" },
+  { value: "40plus", label: "$40+" },
 ];
 
 const billingOptions: Array<{ value: Billing; label: string; detail: string }> = [
@@ -65,8 +68,46 @@ const getFallbackTriggerValue = (input: PickerInput): string => {
   return "context_or_quality_drift";
 };
 
-const getShareText = (input: PickerInput, snippet: string) => {
+function generateConfigSnippet(primaryModelId: string, fallbackModelId: string, fallbackTrigger: string): string {
+  const isMiniMax = primaryModelId.startsWith("minimax/");
+
+  if (isMiniMax) {
+    const modelName = primaryModelId.replace("minimax/", "");
+    return JSON.stringify({
+      agents: {
+        defaults: {
+          model: { primary: primaryModelId }
+        }
+      },
+      models: {
+        mode: "merge",
+        providers: {
+          minimax: {
+            baseUrl: "https://api.minimax.chat/v1",
+            apiKey: "${MINIMAX_API_KEY}",
+            api: "openai-completions",
+            models: [{ id: modelName, name: "MiniMax M2.5" }]
+          }
+        }
+      }
+    }, null, 2);
+  }
+
+  return JSON.stringify({
+    model: primaryModelId,
+    fallbackModel: fallbackModelId,
+    fallbackTrigger,
+  }, null, 2);
+}
+
+const getShareText = (input: PickerInput) => {
+  if (!input.useCase) {
+    return "Select your use case to get a recommendation.";
+  }
+
   const recommendation = getRecommendation(input);
+  const fallbackTrigger = getFallbackTriggerValue(input);
+  const snippet = generateConfigSnippet(recommendation.primary.modelId, recommendation.fallback.modelId, fallbackTrigger);
 
   return [
     `Primary: ${recommendation.primary.modelId}`,
@@ -121,20 +162,11 @@ export function QuestionForm() {
   }, [input, pathname]);
 
   const recommendation = getRecommendation(input);
-  const configSnippet = JSON.stringify(
-    {
-      model: recommendation.primary.modelId,
-      fallbackModel: recommendation.fallback.modelId,
-      fallbackTrigger: getFallbackTriggerValue(input),
-    },
-    null,
-    2,
-  );
   const shareUrl =
     typeof window === "undefined"
       ? `${SOCIAL_LINKS.tool_modelpicker}/pick?${encodeStateToParams(input).toString()}`
       : `${window.location.origin}${pathname}?${encodeStateToParams(input).toString()}`;
-  const shareText = getShareText(input, configSnippet);
+  const shareText = getShareText(input);
   const activeUseCase = useCaseOptions.find((option) => option.value === input.useCase);
 
   return (
@@ -204,63 +236,88 @@ export function QuestionForm() {
                 </button>
               ))}
             </div>
+            {input.budget === "free" ? (
+              <p className="mt-3 text-sm text-muted-foreground italic">
+                Free options have fewer choices — we&apos;ll show you the best ones that actually work in OpenClaw.
+              </p>
+            ) : null}
           </div>
 
-          <div className="bg-secondary p-4 rounded-md hover-lift">
-            <p className="text-sm font-semibold text-foreground">3. How are you paying?</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              This changes how aggressively we optimize for token-priced spend.
-            </p>
-            <div className="mt-3 grid gap-3 md:grid-cols-2">
-              {billingOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setInput((current) => ({ ...current, billing: option.value }))}
-                  className={`rounded-brand border p-4 text-left transition ${
-                    input.billing === option.value
-                      ? "border-accent bg-accent/10"
-                      : "border-primary/20 bg-background/70 hover:bg-secondary/35"
-                  }`}
-                >
-                  <span className="block font-semibold">{option.label}</span>
-                  <span className="mt-1 block text-sm text-muted-foreground">{option.detail}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {input.budget !== "free" ? (
+            <>
+              <div className="bg-secondary p-4 rounded-md hover-lift">
+                <p className="text-sm font-semibold text-foreground">3. How are you paying?</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  This changes how aggressively we optimize for token-priced spend.
+                </p>
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  {billingOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setInput((current) => ({ ...current, billing: option.value }))}
+                      className={`rounded-brand border p-4 text-left transition ${
+                        input.billing === option.value
+                          ? "border-accent bg-accent/10"
+                          : "border-primary/20 bg-background/70 hover:bg-secondary/35"
+                      }`}
+                    >
+                      <span className="block font-semibold">{option.label}</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">{option.detail}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="bg-secondary p-4 rounded-md hover-lift">
-            <p className="text-sm font-semibold text-foreground">4. Does your use case require reliable tool calls?</p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {toolCallOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setInput((current) => ({ ...current, toolCalls: option.value }))}
-                  className={optionButtonClass(input.toolCalls === option.value)}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
+              <div className="bg-secondary p-4 rounded-md hover-lift">
+                <p className="text-sm font-semibold text-foreground">4. Does your use case require reliable tool calls?</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {toolCallOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setInput((current) => ({ ...current, toolCalls: option.value }))}
+                      className={optionButtonClass(input.toolCalls === option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="bg-secondary p-4 rounded-md hover-lift">
-            <p className="text-sm font-semibold text-foreground">5. Are you comfortable running a local model alongside a cloud model?</p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {localOptions.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setInput((current) => ({ ...current, localOk: option.value }))}
-                  className={optionButtonClass(input.localOk === option.value)}
-                >
-                  {option.label}
-                </button>
-              ))}
+              <div className="bg-secondary p-4 rounded-md hover-lift">
+                <p className="text-sm font-semibold text-foreground">5. Are you comfortable running a local model alongside a cloud model?</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {localOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setInput((current) => ({ ...current, localOk: option.value }))}
+                      className={optionButtonClass(input.localOk === option.value)}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="bg-secondary p-4 rounded-md hover-lift">
+              <p className="text-sm font-semibold text-foreground">3. Do you have a machine you can run a local model on?</p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {localOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setInput((current) => ({ ...current, localOk: option.value }))}
+                    className={optionButtonClass(input.localOk === option.value)}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -273,25 +330,41 @@ export function QuestionForm() {
           </p>
         </section>
 
-        <div className="min-w-0 grid gap-4 xl:grid-cols-2">
-          <RecommendationCard label="Primary" entry={recommendation.primary} />
-          <RecommendationCard label="Fallback" entry={recommendation.fallback} />
-        </div>
+        {!input.useCase ? (
+          <div className="min-w-0 flex items-center justify-center p-12">
+            <p className="text-center text-muted-foreground" style={{ fontFamily: '"Source Sans 3", system-ui, sans-serif' }}>
+              Select your use case above to get a recommendation.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="min-w-0 grid gap-4 xl:grid-cols-2">
+              <RecommendationCard label="Primary" entry={recommendation.primary} caveat={recommendation.caveat} />
+              <RecommendationCard label="Fallback" entry={recommendation.fallback} />
+            </div>
 
-        <CostEstimate low={recommendation.costRange.low} high={recommendation.costRange.high} />
-        <OpenRouterTooltip visible={recommendation.openRouterWarning} />
-        <ConfigSnippet snippet={configSnippet} />
-        <EcosystemCTA
-          primaryModelId={recommendation.primary.modelId}
-          fallbackModelId={recommendation.fallback.modelId}
-        />
+            {recommendation.showComparison ? <ComparisonNote /> : null}
 
-        <div className="flex flex-wrap items-center gap-3 rounded-brand border border-primary/20 bg-secondary/30 p-4 hover-lift">
-          <ShareButton url={shareUrl} />
-          <p className="text-sm text-muted-foreground">Share this exact setup using a URL with encoded answers.</p>
-        </div>
+            <CostEstimate low={recommendation.costRange.low} high={recommendation.costRange.high} isFlatRate={recommendation.costRange.isFlatRate} />
+            <OpenRouterTooltip visible={recommendation.openRouterWarning} />
+            <ConfigSnippet
+              primaryModelId={recommendation.primary.modelId}
+              fallbackModelId={recommendation.fallback.modelId}
+              fallbackTrigger={getFallbackTriggerValue(input)}
+            />
+            <EcosystemCTA
+              primaryModelId={recommendation.primary.modelId}
+              fallbackModelId={recommendation.fallback.modelId}
+            />
 
-        <ShareResult text={shareText} />
+            <div className="flex flex-wrap items-center gap-3 rounded-brand border border-primary/20 bg-secondary/30 p-4 hover-lift">
+              <ShareButton url={shareUrl} />
+              <p className="text-sm text-muted-foreground">Share this exact setup using a URL with encoded answers.</p>
+            </div>
+
+            <ShareResult text={shareText} />
+          </>
+        )}
       </div>
     </div>
   );

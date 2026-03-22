@@ -3,11 +3,47 @@
 import { useState } from "react";
 
 interface ConfigSnippetProps {
-  snippet: string;
+  primaryModelId: string;
+  fallbackModelId: string;
+  fallbackTrigger: string;
 }
 
-export function ConfigSnippet({ snippet }: ConfigSnippetProps) {
+function generateSnippet(primaryModelId: string, fallbackModelId: string, fallbackTrigger: string): string {
+  const isMiniMax = primaryModelId.startsWith("minimax/");
+
+  if (isMiniMax) {
+    const modelName = primaryModelId.replace("minimax/", "");
+    return JSON.stringify({
+      agents: {
+        defaults: {
+          model: { primary: primaryModelId }
+        }
+      },
+      models: {
+        mode: "merge",
+        providers: {
+          minimax: {
+            baseUrl: "https://api.minimax.chat/v1",
+            apiKey: "${MINIMAX_API_KEY}",
+            api: "openai-completions",
+            models: [{ id: modelName, name: "MiniMax M2.5" }]
+          }
+        }
+      }
+    }, null, 2);
+  }
+
+  return JSON.stringify({
+    model: primaryModelId,
+    fallbackModel: fallbackModelId,
+    fallbackTrigger,
+  }, null, 2);
+}
+
+export function ConfigSnippet({ primaryModelId, fallbackModelId, fallbackTrigger }: ConfigSnippetProps) {
   const [copied, setCopied] = useState(false);
+  const isMiniMax = primaryModelId.startsWith("minimax/");
+  const snippet = generateSnippet(primaryModelId, fallbackModelId, fallbackTrigger);
 
   const onCopy = async () => {
     try {
@@ -38,6 +74,12 @@ export function ConfigSnippet({ snippet }: ConfigSnippetProps) {
       <pre className="mt-4 overflow-x-auto rounded-brand border border-primary/15 bg-secondary/35 p-4 text-sm text-foreground">
         <code>{snippet}</code>
       </pre>
+
+      {isMiniMax ? (
+        <p className="mt-3 text-sm text-muted-foreground">
+          MiniMax requires provider config — paste the full block above into your clawdbot.json
+        </p>
+      ) : null}
     </section>
   );
 }

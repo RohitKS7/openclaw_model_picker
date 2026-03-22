@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { AnnouncementBar } from "@/components/shared/AnnouncementBar";
 import { MotionSection } from "@/components/shared/MotionSection";
+import { V2FeaturesSection } from "@/components/shared/V2FeaturesSection";
 import { FUTURE_TOOLS, SOCIAL_LINKS } from "@/data/ecosystem";
 
 export const metadata: Metadata = {
@@ -217,6 +218,10 @@ More tools are coming to solve the rest." - Rohit`}
                 </Link>
               </div>
             </section>
+          </MotionSection>
+
+          <MotionSection delay={0.12}>
+            <V2FeaturesSection tool="picker" />
           </MotionSection>
 
           <MotionSection className="rounded-brand border border-primary/20 bg-background/90 p-6" delay={0.15}>

@@ -19,9 +19,11 @@ const USAGE_PROFILES: Record<UseCase, UsageProfile> = {
 
 const BUDGET_MULTIPLIERS: Record<Budget, number> = {
   free: 0,
-  under20: 0.8,
-  "20to50": 1.15,
-  "50plus": 1.75,
+  under10: 0.8,
+  "10to15": 0.9,
+  "15to20": 1.0,
+  "20to40": 1.15,
+  "40plus": 1.75,
 };
 
 const BILLING_MULTIPLIERS: Record<Billing, number> = {
@@ -59,9 +61,23 @@ export const getEstimatedMonthlyRange = (
   input: PickerInput,
   primaryModelId: string,
   fallbackModelId: string,
-): { low: number; high: number } => {
+): { low: number; high: number; isFlatRate?: boolean } => {
+  // Subscription models have flat rate pricing ($20/month) only for 20to40 budget
+  if (input.billing === "subscription" && input.budget === "20to40") {
+    return { low: 20, high: 20, isFlatRate: true };
+  }
+
+  // Other subscription tiers are included in plan
+  if (input.billing === "subscription") {
+    return { low: 0, high: 0, isFlatRate: true };
+  }
+
   if (input.budget === "free") {
     return { low: 0, high: input.localOk === "yes" ? 2 : 4 };
+  }
+
+  if (!input.useCase) {
+    return { low: 0, high: 0 };
   }
 
   const profile = USAGE_PROFILES[input.useCase];
