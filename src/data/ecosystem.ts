@@ -3,9 +3,9 @@ export const SOCIAL_LINKS = {
   linkedin: "https://linkedin.com/in/rohit-kumar-suman",
   website: "https://guardclaw.dev",
   github: "https://github.com/RohitKS7",
-  buyMeACoffee: "https://www.buymeacoffee.com/rohitks7",
+  githubSponsor: "https://github.com/sponsors/RohitKS7",
   tools: "https://guardclaw.dev/tools",
-  tool_github: "https://github.com/RohitKS7",
+  tool_github: "https://github.com/RohitKS7/model_picker",
   tool_calculator: "https://guardclaw.dev/calculator",
   tool_modelpicker: "https://guardclaw.dev/picker",
 };

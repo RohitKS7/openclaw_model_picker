@@ -7,6 +7,7 @@ import { AnnouncementBar } from "@/components/shared/AnnouncementBar";
 import { MotionSection } from "@/components/shared/MotionSection";
 import { V2FeaturesSection } from "@/components/shared/V2FeaturesSection";
 import { FUTURE_TOOLS, SOCIAL_LINKS } from "@/data/ecosystem";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "OpenClaw Model Picker Overview | GuardClaw",
@@ -16,24 +17,24 @@ export const metadata: Metadata = {
 
 const quotes = [
   {
-    quote: "Model choice is the primary challenge. Quality, quantity, and price is a constant riddle.",
-    source: "Discord - #model-discussion",
+    quote: '"Picking the right model is the hardest part."',
+    source: "Discord - #general",
   },
   {
-    quote: "As a beginner there is information overload - the best I could do is just pick something and play around.",
+    quote: "I just pick a model and hope it works — there’s no clear way to know.",
     source: "Discord - #users-helping-users",
   },
   {
-    quote: "I use OpenRouter without really knowing what's behind it.",
+    quote: "I only realize I picked the wrong model after things start breaking.",
     source: "Community feedback thread",
   },
 ];
 
 const whatItDoes = [
-  "Asks five practical questions on one screen.",
-  "Recommends a primary and fallback model stack.",
-  "Generates a copyable config snippet immediately.",
-  "Hands you off to the calculator for exact spend verification.",
+  "Tell us what you're trying to build",
+  "Get a recommended model + fallback",
+  "Copy your config instantly",
+  " Check cost before you run it",
 ];
 
 const heroBadges = [
@@ -72,8 +73,7 @@ export default function HomePage() {
                 <span className="block text-accent">They fail at model choice.</span>
               </h1>
               <p className="mx-auto mt-8 max-w-[21rem] text-[1.02rem] leading-[1.9] text-muted-foreground sm:max-w-[34rem] sm:text-[1.125rem] lg:mx-0 lg:mt-6 lg:max-w-[30rem] reveal-up reveal-delay-2">
-                The Model Picker turns that guesswork into one clear action: answer five questions, get a recommended
-                primary and fallback stack, copy the config, and move on.
+               Answer 5 questions. Get the right model + fallback setup + ready to use config instantly.
               </p>
 
               <div className="mx-auto mt-8 flex max-w-[22rem] flex-wrap items-center justify-center gap-2.5 text-center lg:mx-0 lg:max-w-[30rem] lg:justify-start reveal-up reveal-delay-3">
@@ -150,14 +150,14 @@ export default function HomePage() {
             <p className="text-sm font-semibold uppercase tracking-[0.16em] text-muted-foreground">Why this exists</p>
             <h2 className="mt-3 text-3xl font-bold">The community was paying for trial and error.</h2>
             <p className="mt-4 max-w-4xl whitespace-pre-line text-muted-foreground">
-              {`People keep defaulting to familiar model names instead of models that actually fit their workflow.
+              {`People keep guessing models.
 
-That turns into invisible experimentation:
-- expensive coding sessions pinned to the wrong model
-- unreliable tool calls in automation paths
-- routing layers people do not fully understand
+That guess turns into:
+- expensive runs
+- unreliable outputs
+- broken automations
 
-This tool exists to give OpenClaw users a fast, opinionated answer they can act on immediately.`}
+This tool removes the guess.`}
             </p>
           </MotionSection>
 
@@ -172,11 +172,26 @@ More tools are coming to solve the rest." - Rohit`}
           <MotionSection className="grid gap-6 lg:grid-cols-2" delay={0.1}>
             <section className="rounded-brand border border-primary/20 bg-background/90 p-6 hover-lift">
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-muted-foreground">Ecosystem</p>
-              <h2 className="mt-3 text-3xl font-bold">One tool should lead cleanly into the next.</h2>
-              <p className="mt-3 text-muted-foreground">
-                Model Picker gives you the recommendation. The calculator gives you the detailed spend. Together they
-                remove both halves of the model-choice problem.
-              </p>
+              {/* <h2 className="mt-3 text-3xl font-bold">One tool should lead cleanly into the next.</h2> */}
+              <div className="mt-3 text-muted-foreground">
+                <h2 className="font-bold text-3xl mb-2">
+                   Model Picker answers:
+                </h2>
+                <p className="mb-4">
+                  what should you use.
+                </p>
+
+                <h2 className="font-bold text-3xl mb-2">
+                  The calculator answers:
+                </h2>
+                <p className="mb-4">
+                  what will it cost.
+                </p>
+
+                <p>
+                  Together, you avoid bad decisions before they happen.
+                </p>
+              </div>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
                   href={SOCIAL_LINKS.tool_calculator}
@@ -203,14 +218,14 @@ More tools are coming to solve the rest." - Rohit`}
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
-                  href={SOCIAL_LINKS.github}
+                  href={SOCIAL_LINKS.tool_github}
                   target="_blank"
                   className="rounded-full bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground transition hover:opacity-90"
                 >
                   Star on GitHub
                 </Link>
                 <Link
-                  href={SOCIAL_LINKS.buyMeACoffee}
+                  href={SOCIAL_LINKS.githubSponsor}
                   target="_blank"
                   className="rounded-full border border-primary/30 px-5 py-2 text-sm font-semibold transition hover:bg-primary hover:text-primary-foreground"
                 >
@@ -235,6 +250,47 @@ More tools are coming to solve the rest." - Rohit`}
               ))}
             </div>
           </MotionSection>
+           <section className="rounded-brand border bg-background/85 p-6 max-md:text-center reveal-up">
+            <h2 className="text-2xl font-bold">Builder Identity</h2>
+            <div className="mt-4 grid gap-6 md:grid-cols-[220px_1fr] md:items-center">
+              <div className="mx-auto w-full max-w-xs overflow-hidden rounded-brand border border-primary/20 md:mx-0 md:max-w-none">
+                <Image
+                  src="/headshot-bg.png"
+                  alt="Rohit Kumar Suman"
+                  width={640}
+                  height={640}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div>
+                <p className="text-lg font-semibold">Built by Rohit Kumar Suman</p>
+                <p className="mt-2 text-muted-foreground">
+                  I build tools based on repeated problems I see in OpenClaw communities. Shared publicly as I build. Then I ship them fast.
+                  Feedback shapes what comes next.
+                </p>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  If this tool was useful, a{" "}
+                  <Link href="https://github.com/RohitKS7" target="_blank" className="underline underline-offset-2">
+                    GitHub star genuinely helps. -&gt; github.com/RohitKS7
+                  </Link>
+                </p>
+                <div className="mt-4 grid gap-3 text-sm font-semibold sm:flex sm:flex-wrap">
+                  <Link href={SOCIAL_LINKS.github} target="_blank" className="inline-flex items-center justify-center rounded-full border border-primary/30 px-4 py-2">
+                    GitHub
+                  </Link>
+                  <Link href={SOCIAL_LINKS.twitter} target="_blank" className="inline-flex items-center justify-center rounded-full border border-primary/30 px-4 py-2">
+                    Twitter/X
+                  </Link>
+                  <Link href={SOCIAL_LINKS.linkedin} target="_blank" className="inline-flex items-center justify-center rounded-full border border-primary/30 px-4 py-2">
+                    LinkedIn
+                  </Link>
+                  <Link href={SOCIAL_LINKS.website} target="_blank" className="inline-flex items-center justify-center rounded-full border border-primary/30 px-4 py-2">
+                    Journey
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
 
