@@ -6,6 +6,7 @@ import { ToolLayout } from "@/components/layout/ToolLayout";
 import { AnnouncementBar } from "@/components/shared/AnnouncementBar";
 import { MotionSection } from "@/components/shared/MotionSection";
 import { PRICING_LAST_UPDATED } from "@/data/pricing";
+import { SOCIAL_LINKS } from "@/data/ecosystem";
 
 export const metadata: Metadata = {
   title: "OpenClaw Model Picker | GuardClaw",
@@ -23,8 +24,8 @@ export default function PickPage() {
         <AnnouncementBar
           badge="FIELD NOTE"
           message="Already know your model? Check what it costs."
-          linkLabel="Open the Calculator -&gt;"
-          linkHref="https://calculator.guardclaw.dev"
+          linkLabel="Open the Calculator &#x2192;"
+          linkHref={SOCIAL_LINKS.tool_calculator}
           external
         />
       }

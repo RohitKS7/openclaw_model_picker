@@ -8,7 +8,7 @@ interface EcosystemCTAProps {
 }
 
 export function EcosystemCTA({ primaryModelId, fallbackModelId }: EcosystemCTAProps) {
-  const href = `${SOCIAL_LINKS.tool_calculator}/calculate?pm=${encodeURIComponent(primaryModelId)}&fm=${encodeURIComponent(fallbackModelId)}`;
+  const href = `${SOCIAL_LINKS.tool_calculator}?pm=${encodeURIComponent(primaryModelId)}&fm=${encodeURIComponent(fallbackModelId)}`;
 
   return (
     <section className="rounded-brand border border-primary/20 bg-background/90 p-5 hover-lift">
